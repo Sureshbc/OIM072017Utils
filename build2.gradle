@@ -1,0 +1,77 @@
+group 'org.itnaf.metadata.lookups'
+version '1.0-SNAPSHOT'
+
+// Apply the java plugin to add support for Java
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+configurations{
+ 	includeInJar
+}
+
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+ 	jcenter()
+	mavenCentral()
+}
+
+// In this section you declare the dependencies for your production and test code
+dependencies {
+    compile 'org.apache.poi:poi:3.13'
+	compile 'org.apache.poi:poi-ooxml:3.13'
+	compile 'org.apache.poi:poi-scratchpad:3.13'    
+	compile "org.testng:testng:6.3.1"
+	
+    testCompile 'junit:junit:4.12'
+	testCompile group: 'org.testng', name: 'testng', version: '5.7'
+    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
+    testCompile group: 'org.assertj', name: 'assertj-core', version: '2.0.0'
+    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.+'
+    testCompile group: 'org.easymock', name: 'easymock', version: '3.3.1'
+    
+    compile fileTree (dir: 'C:/temp/designconsole/lib/',include: '*.jar')
+    compile fileTree (dir: 'C:/temp/designconsole/ext/',include: '*.jar')
+    
+    
+    configurations.compile.extendsFrom(configurations.includeInJar)
+ }
+
+ jar.doFirst{
+         manifest {
+         attributes("Manifest-Version" : "1.0",
+                 "Created-By" : "Marco Fanti",
+                 "ConnectorBundle-FrameworkVersion" : "1.4.0",
+                 "ConnectorBundle-Name" : project.name,
+                 "ConnectorBundle-Version" : version,
+                 "Build-Number": "609",
+                 "Subversion-Revision" : "4582"
+                         )
+         }
+         into('lib') {
+         println "includeInJar: " + configurations.includeInJar.collect { File file -> file }
+         from configurations.includeInJar
+         }
+
+ }
+
+ task copyTask(type: Copy) {
+    from './build/libs/'
+    into './bundles'
+}
+
+test {
+	useTestNG() {
+	    filter {
+	        //include all tests from package
+	        includeTestsMatching "org.itnaf.metadata.parser.DemoTest2"
+	
+	    }
+    }
+}
+
+
+
